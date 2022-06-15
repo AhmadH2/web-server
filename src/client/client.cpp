@@ -6,7 +6,7 @@
 
 using boost::asio::ip::tcp;
 
-enum { max_length = 1024 };
+const int max_length = 1024;
 
 int main(int argc, char* argv[])
 {
@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
     tcp::socket socket(io_context);
     tcp::resolver resolver(io_context);
     boost::asio::connect(socket, resolver.resolve(argv[1], argv[2]));
+    
 
     // send request to the server
     std::cout << "Enter message: ";
