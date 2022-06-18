@@ -2,58 +2,54 @@
 #include "Acceptor.h"
 #include "Service.h"
 
-Acceptor::Acceptor(asio::io_context& ios, unsigned short port_num) :
-  m_ios(ios),
-  m_acceptor(m_ios,
-  tcp::endpoint(
-  asio::ip::address_v4::any(),
-  port_num)),
+Acceptor::Acceptor(asio::io_context& ioc, unsigned short port) :
+  m_ioc(ioc),
+  m_acceptor(m_ioc, tcp::endpoint(asio::ip::address_v4::any(), port)),
+  m_sock(new tcp::socket(m_ioc)),
   m_isStopped(false)
 {}
 
-	// Start accepting incoming connection requests.
-void Acceptor::Start() {
+// Start accepting connection requests.
+void Acceptor::start() {
   m_acceptor.listen();
   InitAccept();
 }
 
-	// Stop accepting incoming connection requests.
-void Acceptor::Stop() {
+// Stop accepting connection requests.
+void Acceptor::stop() {
   m_isStopped.store(true);
 }
 
+// Establish a connection with the client
 void Acceptor::InitAccept() {
-  std::shared_ptr<tcp::socket>
-	sock(new tcp::socket(m_ios));
   std::cout<<"init accept\n ";
 
-  m_acceptor.async_accept(*sock.get(),
-	[this, sock](
-		const boost::system::error_code& error){
-          std::cout<<"handle init accept\n ";
+  // A passive socket listens for incomming connection requests
+  m_acceptor.async_accept(*m_sock,
+	[this](
+		const boost::system::error_code& ec){
 		  try{
-			onAccept(error, sock);
+			if(ec) 
+				throw ec;
+			onAccept(ec);
 		  } 
 		  catch(boost::system::error_code& ec) {
 			std::cout << "Error occured! Error code = "
 			<< ec.value()
-			<< ". Message: " << ec.message();
+			<< ".Error Message: " << ec.message();
 		  }
-		  
-		});
+		}
+	);
 }
 
-void Acceptor::onAccept(const boost::system::error_code& ec,
-  std::shared_ptr<tcp::socket> sock) {
-    std::cout<<"ec value: "<<ec.value()<<std::endl;
-	if (ec.value() == 0) {
-	  (new Service(sock))->start();
-      //std::make_shared<Service>((*sock.get())))->start();
-      std::cout<<"make pointer shared\n";
+// start handling request
+void Acceptor::onAccept(const boost::system::error_code& ec) {
+	if (!ec) {
+		// void start_handling();
+		(new Service(m_sock))->start_handling();
 	}
-	else {
-	  throw ec;
-	}
+	else 
+	    throw ec;
 
 	// Init next async accept operation if
 	// acceptor has not been stopped yet.

@@ -1,35 +1,32 @@
 #pragma once
-#include <cstdlib>
 #include <iostream>
 #include <memory>
-#include <utility>
 #include <boost/asio.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/filesystem.hpp>
-#include <fstream>
 #include <atomic>
 
 using namespace boost;
 using boost::asio::ip::tcp;
 
-
+// Responsible for accepting connection requests from clients 
+// and create instance of Service class for each request to handle the request
 class Acceptor {
 public:
-  Acceptor(asio::io_context& ios, unsigned short port_num);
-	// Start accepting incoming connection requests.
-  void Start();
+  Acceptor(asio::io_context& ioc, unsigned short port);
 
-	// Stop accepting incoming connection requests.
-  void Stop();
+	// Start accepting connection requests.
+  void start();
+
+	// Stop accepting connection requests.
+  void stop();
 
 private:
   void InitAccept();
 
-  void onAccept(const boost::system::error_code& ec,
-	std::shared_ptr<tcp::socket> sock);
+  void onAccept(const boost::system::error_code& ec);
 
 private:
-	asio::io_context& m_ios;
+	asio::io_context& m_ioc;
 	tcp::acceptor m_acceptor;
+	std::shared_ptr<tcp::socket> m_sock;
 	std::atomic<bool> m_isStopped;
 };
