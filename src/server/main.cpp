@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Server.h"
+#include <thread>
 
 using namespace boost;
 using boost::asio::ip::tcp;
@@ -14,6 +15,7 @@ int main(int argc, char* argv[])
 
     Server srv;
     srv.start(port, thread_pool_size);
+    std::this_thread::sleep_for(std::chrono::seconds(60));
     srv.stop();
   }
   catch(const boost::system::error_code& ec) {

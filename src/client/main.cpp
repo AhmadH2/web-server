@@ -35,6 +35,7 @@ int main(int argc, char* argv[])
     req->execute();
 
     std::this_thread::sleep_for(std::chrono::seconds(15));
+    client.close();
 
   }
   catch(boost::system::error_code& ec) {

@@ -5,7 +5,6 @@
 Acceptor::Acceptor(asio::io_context& ioc, unsigned short port) :
   m_ioc(ioc),
   m_acceptor(m_ioc, tcp::endpoint(asio::ip::address_v4::any(), port)),
-  m_sock(new tcp::socket(m_ioc)),
   m_isStopped(false)
 {}
 
@@ -22,16 +21,20 @@ void Acceptor::stop() {
 
 // Establish a connection with the client
 void Acceptor::InitAccept() {
-  std::cout<<"init accept\n ";
+  std::cout<<"init accept\n";
+  std::shared_ptr<asio::ip::tcp::socket>
+			sock(new asio::ip::tcp::socket(m_ioc));
 
+//   m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
   // A passive socket listens for incomming connection requests
-  m_acceptor.async_accept(*m_sock,
-	[this](
+  m_acceptor.async_accept(*sock,
+	[this, sock](
 		const boost::system::error_code& ec){
 		  try{
 			if(ec) 
 				throw ec;
-			onAccept(ec);
+			
+			onAccept(ec, sock);
 		  } 
 		  catch(boost::system::error_code& ec) {
 			std::cout << "Error occured! Error code = "
@@ -43,10 +46,10 @@ void Acceptor::InitAccept() {
 }
 
 // start handling request
-void Acceptor::onAccept(const boost::system::error_code& ec) {
+void Acceptor::onAccept(const boost::system::error_code& ec,
+	std::shared_ptr<asio::ip::tcp::socket> sock) {
 	if (!ec) {
-		// void start_handling();
-		(new Service(m_sock))->start_handling();
+		(new Service(sock))->start_handling();
 	}
 	else 
 	    throw ec;

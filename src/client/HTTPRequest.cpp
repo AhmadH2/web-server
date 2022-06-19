@@ -40,6 +40,9 @@ void HTTPRequest::execute() {
         [this](const boost::system::error_code& ec,
         asio::ip::tcp::resolver::iterator iterator)
     {
+        if(ec) {
+            std::cout<<"error in resolving "<<ec.message()<<"\n";
+        }
         connect(ec, iterator);
     });
 }

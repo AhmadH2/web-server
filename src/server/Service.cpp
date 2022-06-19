@@ -112,6 +112,7 @@ void Service::on_request_line_received(
     // At this point the request line is successfully
     // received and parsed
 
+    
     // Read the request headers.
     asio::async_read_until(*m_sock.get(),
         m_request_buf,
@@ -155,7 +156,7 @@ void Service::on_headers_received(const boost::system::error_code& ec,
     // Parse and store headers.
     std::istream request_stream(&m_request_buf);
     std::string header_name, header_value;
- 
+
     while (!request_stream.eof()) {
         std::getline(request_stream, header_name, ':');
         if (!request_stream.eof()) {
@@ -178,7 +179,6 @@ void Service::on_headers_received(const boost::system::error_code& ec,
 }
 
 void Service::process_request() {
-    std::cout<<"processing reques\n";
     // Read file.
     std::string resource_file_path = "." +
         m_requested_resource;
@@ -220,15 +220,9 @@ void Service::process_request() {
         ": " +
         std::to_string(m_resource_size_bytes) +
         "\r\n";
-        std::cout<<"end processing request\n";
-    // resource_fstream.close();
-    // boost::filesystem::complete(resource_file_path);
 }
 
 void Service::send_response()  {
-    std::cout<<"send response\n";
-    m_sock->shutdown(
-        asio::ip::tcp::socket::shutdown_receive);
 
     auto status_line =
         http_status_table.at(m_response_status_code);
@@ -257,7 +251,7 @@ void Service::send_response()  {
     }
 
     // Initiate asynchronous write operation.
-    asio::async_write(*m_sock.get(),
+    asio::async_write(*m_sock,
         response_buffers,
         [this](
         const boost::system::error_code& ec,
@@ -275,8 +269,9 @@ void Service::on_response_sent(const boost::system::error_code& ec,
         std::cout << "Error occured! at on_response_sent Error code = "
             << ec.value()
             << ". Message: " << ec.message();
+            m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
     }
-
+    // m_sock->close();
     m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
 
     on_finish();

@@ -11,6 +11,7 @@ void Server::start(unsigned short port,unsigned int thread_pool_size) {
   // Create and strat Acceptor.
   acceptor.reset(new Acceptor(m_ioc, port));
   acceptor->start();
+  
   m_ioc.run();
 
   // Create specified number of threads and add them to the threads pool.

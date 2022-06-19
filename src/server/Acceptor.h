@@ -22,11 +22,11 @@ public:
 private:
   void InitAccept();
 
-  void onAccept(const boost::system::error_code& ec);
+  void onAccept(const boost::system::error_code& ec,
+  	std::shared_ptr<asio::ip::tcp::socket> sock);
 
 private:
 	asio::io_context& m_ioc;
 	tcp::acceptor m_acceptor;
-	std::shared_ptr<tcp::socket> m_sock;
 	std::atomic<bool> m_isStopped;
 };
