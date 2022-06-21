@@ -6,7 +6,6 @@ HttpHead::HttpHead(Service* service): HttpMethod(service) {}
 void HttpHead::processRequest() {
     std::cout<<"requested resource: "<<m_service->getRequestedResource();
     std::string resource_file_path = "." + m_service->getRequestedResource();
-        // m_requested_resource;
 
     std::cout<<"Resource path"<<resource_file_path<<"\n";
     if (!boost::filesystem::exists(resource_file_path)) {
@@ -14,7 +13,6 @@ void HttpHead::processRequest() {
         m_response_status_code = 404;
         std::cout<<"file not exist\n";
         m_service->send_response();
-        // m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
         return;
     }
 
@@ -26,7 +24,6 @@ void HttpHead::processRequest() {
         // Could not open file. 
         // Something bad has happened.
         m_response_status_code = 500;
-        // m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
         m_service->send_response();
         return;
     }
@@ -55,8 +52,6 @@ void HttpHead::sendResponse() {
 
     m_response_headers += "\r\n";
 
-
-
     std::vector<asio::const_buffer> response_buffers;
     response_buffers.push_back(
         asio::buffer(m_response_status_line));
@@ -66,12 +61,6 @@ void HttpHead::sendResponse() {
             asio::buffer(m_response_headers));
     }
 
-    // if (m_resource_size_bytes > 0) {
-    //     response_buffers.push_back(
-    //         asio::buffer(m_resource_buf.get(),
-    //         m_resource_size_bytes));
-    // }
-
     // Initiate asynchronous write operation.
     asio::async_write(*(m_service->getSocket()),
         response_buffers,
@@ -79,10 +68,7 @@ void HttpHead::sendResponse() {
         const boost::system::error_code& ec,
         std::size_t bytes_transferred)
     {
-        // m_service->on_response_sent(ec,
-        //     bytes_transferred);
         this->m_service->on_response_sent(ec, bytes_transferred);
-        // m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
         return;
     });
 }

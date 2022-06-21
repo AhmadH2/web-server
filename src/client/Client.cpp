@@ -1,6 +1,5 @@
 #include "Client.h"
 
-
 HTTPClient::HTTPClient(){
     m_work.reset(new boost::asio::io_context::work(m_ioc));
     m_thread.reset(new boost::thread(boost::bind(&boost::asio::io_context::run, &m_ioc)));

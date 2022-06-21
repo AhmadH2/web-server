@@ -8,5 +8,4 @@ public:
     void sendResponse();
 private:
     std::size_t m_resource_size_bytes;
-    // std::unique_ptr<char[]> m_resource_buf;
 };

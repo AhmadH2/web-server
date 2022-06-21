@@ -5,7 +5,6 @@ HTTPResponse::HTTPResponse(std::shared_ptr<asio::ip::tcp::socket> sock,
 
 void HTTPResponse::read_response() {
 
-    
     asio::async_read(*m_sock, m_response_buf,
     [this](const boost::system::error_code& ec, std::size_t bytes_transferred) {
         if(!ec || ec == boost::asio::error::eof)

@@ -8,7 +8,6 @@
 
 using namespace boost;
 
-
 class HTTPClient {
 public:
 	HTTPClient();

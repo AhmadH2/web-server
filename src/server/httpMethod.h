@@ -1,7 +1,6 @@
 #pragma once
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
-
 #include <fstream>
 #include <atomic>
 #include <thread>
@@ -10,12 +9,10 @@
 #include <memory>
 
 class Service;
-
 class HttpMethod
 {
 public:
     HttpMethod(Service* service);
-    // HttpMethod();
     void virtual processRequest();
     void virtual sendResponse();
 

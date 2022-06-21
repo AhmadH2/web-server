@@ -4,36 +4,16 @@
 HttpGet::HttpGet(Service* service): HttpMethod(service) {
 }
 
-
-
-// HttpGet::HttpGet(std::string requested_resource, 
-// std::shared_ptr<boost::asio::ip::tcp::socket> sock,
-// const std::map<unsigned int, std::string> http_status_table)
-// : m_requested_resource(requested_resource), m_sock(sock)
-// , m_http_status_table(http_status_table){
-//     // HttpMethod(service);
-//     m_response_status_code = 200;
-//     m_response_headers = "";
-//     m_response_status_line = "";
-// }
-
-// void HttpGet::setRequestedRes(std::string res) {
-//     m_requested_resource = res;
-// }
-
 void HttpGet::processRequest() {
     // Read file.
     std::cout<<"requested resource: "<<m_service->getRequestedResource();
     std::string resource_file_path = "." + m_service->getRequestedResource();
-        // m_requested_resource;
 
     std::cout<<"Resource path"<<resource_file_path<<"\n";
     if (!boost::filesystem::exists(resource_file_path)) {
         // Resource not found.
         m_response_status_code = 404;
         std::cout<<"file not exist\n";
-        m_service->send_response();
-        // m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
         return;
     }
 
@@ -46,7 +26,7 @@ void HttpGet::processRequest() {
         // Something bad has happened.
         m_response_status_code = 500;
         // m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
-        m_service->send_response();
+        // m_service->send_response();
         return;
     }
 
@@ -81,8 +61,6 @@ void HttpGet::sendResponse()  {
 
     m_response_headers += "\r\n";
 
-
-
     std::vector<asio::const_buffer> response_buffers;
     response_buffers.push_back(
         asio::buffer(m_response_status_line));
@@ -105,10 +83,7 @@ void HttpGet::sendResponse()  {
         const boost::system::error_code& ec,
         std::size_t bytes_transferred)
     {
-        // m_service->on_response_sent(ec,
-        //     bytes_transferred);
         this->m_service->on_response_sent(ec, bytes_transferred);
-        // m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
         return;
     });
 }

@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 
     Server srv;
     srv.start(port, thread_pool_size);
-    std::this_thread::sleep_for(std::chrono::seconds(60));
+    std::this_thread::sleep_for(std::chrono::seconds(40));
     srv.stop();
   }
   catch(const boost::system::error_code& ec) {

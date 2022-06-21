@@ -31,6 +31,7 @@ std::shared_ptr<boost::asio::ip::tcp::socket> Service::getSocket() {
 }
 
 void Service::start_handling() {
+    // read requst line
     asio::async_read_until(*m_sock,
         m_request_buf,
         "\r\n",
@@ -110,7 +111,6 @@ void Service::on_request_line_received(
             bytes_transferred);
     });
     
-
     return;
 }
 
@@ -156,102 +156,19 @@ void Service::on_headers_received(const boost::system::error_code& ec,
         }
     }
 
-     // Need to be refactored to be open for extensions, closed for modifications
-    // following factory design pattern
-    if(m_request_method == "get") {
-        // Now we have all we need to process the request.
-        m_http_method= new HttpGet(this);
-        // m_http_method->setRequestedRes(m_requested_resource);
-        m_http_method->processRequest();
-        m_http_method->sendResponse();
-    
-    }
-    else if(m_request_method == "head") {
-        // Now we have all we need to process the request.
-        m_http_method= new HttpHead(this);
-        // m_http_method->setRequestedRes(m_requested_resource);
-        m_http_method->processRequest();
-        m_http_method->sendResponse();
-    }
-    else if(m_request_method == "echo") {
-        m_http_method = new HttpEcho(this);
-        m_http_method->processRequest();
-        m_http_method->sendResponse();
+    MethodFactory* methodFactory = new MethodFactory(this);
 
-    }
-    else {
-                // Unsupported method.
+    m_http_method = methodFactory->getMethod(m_request_method);
+    if(m_http_method == nullptr) {
+        std::cout<<"ist null\n";
         m_response_status_code = 501;
         send_response();
-
         return;
     }
-
-    // if (m_request_method.compare("get") != 0) {
-    //     // Unsupported method.
-    //     m_response_status_code = 501;
-    //     send_response();
-
-    //     return;
-    // }
-
-    
-    // m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
-    // on_finish();
-    // m_http_method(p);
-
-    // process_request();
-    // send_response();
+    m_http_method->processRequest();
+    m_http_method->sendResponse();
 
     return;
-}
-
-// Here we perform the cleanup.
-
-
-void Service::process_request() {
-    // Read file.
-    std::string resource_file_path = "." +
-        m_requested_resource;
-
-    std::cout<<"Resource path"<<resource_file_path<<"\n";
-    if (!boost::filesystem::exists(resource_file_path)) {
-        // Resource not found.
-        m_response_status_code = 404;
-        std::cout<<"file not exist\n";
-        return;
-    }
-
-    std::ifstream resource_fstream(
-        resource_file_path,
-        std::ifstream::binary);
-
-    if (!resource_fstream.is_open()) {
-        // Could not open file. 
-        // Something bad has happened.
-        m_response_status_code = 500;
-
-        return;
-    }
-
-    // Find out file size.
-    resource_fstream.seekg(0, std::ifstream::end);
-
-    m_resource_size_bytes =
-        static_cast<std::size_t>(
-        resource_fstream.tellg());
-
-    m_resource_buf.reset(
-        new char[m_resource_size_bytes]);
-
-    resource_fstream.seekg(std::ifstream::beg);
-    resource_fstream.read(m_resource_buf.get(),
-        m_resource_size_bytes);
-
-    m_response_headers += std::string("content-length") +
-        ": " +
-        std::to_string(m_resource_size_bytes) +
-        "\r\n";
 }
 
 void Service::send_response()  {
@@ -264,7 +181,6 @@ void Service::send_response()  {
         "\r\n";
 
     m_response_headers += "\r\n";
-
 
 
     std::vector<asio::const_buffer> response_buffers;

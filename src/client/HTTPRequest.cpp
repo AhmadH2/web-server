@@ -1,14 +1,13 @@
 #include "HTTPRequest.h"
 
-
 HTTPRequest::HTTPRequest(boost::asio::io_context& ioc, std::string host, unsigned short port):
     m_sock(new asio::ip::tcp::socket(ioc)),
     m_resolver(ioc),
     m_ioc(ioc) {
-        m_method = "";
-        m_uri = "";
-        m_port = port;
-        m_host = host;
+    m_method = "";
+    m_uri = "";
+    m_port = port;
+    m_host = host;
 }
 
 void HTTPRequest::setMethod(std::string method) {

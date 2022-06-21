@@ -11,10 +11,5 @@ void  HttpMethod::processRequest() {
 void  HttpMethod::sendResponse(){
     std::cout<<"HEllo from httpMethod response";
 }
-// HttpMethod::HttpMethod(){
-//     m_service = nullptr;
-//     m_response_status_code = 404;
-//     m_response_headers = "";
-//     m_response_status_line = "";
-// }
+
 
