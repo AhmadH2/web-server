@@ -25,10 +25,9 @@ int main(int argc, char* argv[])
     HTTPClient client;
 		std::shared_ptr<HTTPRequest> req = client.create_request(host, port);
 
-    std::cout<<"ENTER HTTP method: ";
+    std::cout<<"Enter HTTP Request: ";
     std::cin>>method;
-    std::cout<<"ENTER file URI start with / ";
-    std::cin>>uri;
+    std::getline(std::cin, uri);
 
     req->setMethod(method);
     req->setURI(uri);

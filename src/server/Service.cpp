@@ -1,4 +1,5 @@
 #include "Service.h"
+// #include "httpHead.h"
 
 const std::map<unsigned int, std::string>
 Service::http_status_table =
@@ -16,10 +17,21 @@ Service::Service(std::shared_ptr<boost::asio::ip::tcp::socket> sock) :
     m_request_buf(4096),
     m_response_status_code(200), // initialized to assume success.
     m_resource_size_bytes(0)
-{};
+{
+    m_request_method = "";
+    m_http_method = nullptr;
+};
+
+std::string Service::getRequestedResource() {
+    return m_requested_resource;
+}
+
+std::shared_ptr<boost::asio::ip::tcp::socket> Service::getSocket() {
+    return m_sock;
+}
 
 void Service::start_handling() {
-    asio::async_read_until(*m_sock.get(),
+    asio::async_read_until(*m_sock,
         m_request_buf,
         "\r\n",
         [this](
@@ -65,37 +77,10 @@ void Service::on_request_line_received(
     request_stream.get();
 
     // Parse the request line.
-    std::string request_method;
+    // std::string request_method;
     std::istringstream request_line_stream(request_line);
-    request_line_stream >> request_method;
-    std::cout<<"method: " <<request_method<<"\n";
-
-    // Need to be refactored to be open for extensions, closed for modifications
-    // following factory design pattern
-    // if(request_method == "get") {
-    
-    // }
-    // else if(request_method == "head") {
-
-    // }
-    // else if(request_method == "echo") {
-
-    // }
-    // else {
-    //             // Unsupported method.
-    //     m_response_status_code = 501;
-    //     send_response();
-
-    //     return;
-    // }
-
-    if (request_method.compare("get") != 0) {
-        // Unsupported method.
-        m_response_status_code = 501;
-        send_response();
-
-        return;
-    }
+    request_line_stream >> m_request_method;
+    std::cout<<"method: " <<m_request_method<<"\n";
 
     request_line_stream >> m_requested_resource;
 
@@ -114,7 +99,7 @@ void Service::on_request_line_received(
 
     
     // Read the request headers.
-    asio::async_read_until(*m_sock.get(),
+    asio::async_read_until(*m_sock,
         m_request_buf,
         "\r\n\r\n",
         [this](
@@ -171,12 +156,58 @@ void Service::on_headers_received(const boost::system::error_code& ec,
         }
     }
 
-    // Now we have all we need to process the request.
-    process_request();
-    send_response();
+     // Need to be refactored to be open for extensions, closed for modifications
+    // following factory design pattern
+    if(m_request_method == "get") {
+        // Now we have all we need to process the request.
+        m_http_method= new HttpGet(this);
+        // m_http_method->setRequestedRes(m_requested_resource);
+        m_http_method->processRequest();
+        m_http_method->sendResponse();
+    
+    }
+    else if(m_request_method == "head") {
+        // Now we have all we need to process the request.
+        m_http_method= new HttpHead(this);
+        // m_http_method->setRequestedRes(m_requested_resource);
+        m_http_method->processRequest();
+        m_http_method->sendResponse();
+    }
+    else if(m_request_method == "echo") {
+        m_http_method = new HttpEcho(this);
+        m_http_method->processRequest();
+        m_http_method->sendResponse();
+
+    }
+    else {
+                // Unsupported method.
+        m_response_status_code = 501;
+        send_response();
+
+        return;
+    }
+
+    // if (m_request_method.compare("get") != 0) {
+    //     // Unsupported method.
+    //     m_response_status_code = 501;
+    //     send_response();
+
+    //     return;
+    // }
+
+    
+    // m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
+    // on_finish();
+    // m_http_method(p);
+
+    // process_request();
+    // send_response();
 
     return;
 }
+
+// Here we perform the cleanup.
+
 
 void Service::process_request() {
     // Read file.
@@ -205,6 +236,7 @@ void Service::process_request() {
 
     // Find out file size.
     resource_fstream.seekg(0, std::ifstream::end);
+
     m_resource_size_bytes =
         static_cast<std::size_t>(
         resource_fstream.tellg());
@@ -277,8 +309,7 @@ void Service::on_response_sent(const boost::system::error_code& ec,
     on_finish();
 }
 
-// Here we perform the cleanup.
+
 void Service::on_finish() {
     delete this;
 }
-

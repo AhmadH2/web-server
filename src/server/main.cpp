@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
     srv.stop();
   }
   catch(const boost::system::error_code& ec) {
-    std::cerr << "Exception: " << ec.message() << "\n";
+    std::cerr << "error code Exception: " << ec.message() << "\n";
   }
   catch (std::exception& e)
   {
