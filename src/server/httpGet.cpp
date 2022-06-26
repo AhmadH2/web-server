@@ -25,8 +25,6 @@ void HttpGet::processRequest() {
         // Could not open file. 
         // Something bad has happened.
         m_response_status_code = 500;
-        // m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
-        // m_service->send_response();
         return;
     }
 
@@ -61,6 +59,7 @@ void HttpGet::sendResponse()  {
 
     m_response_headers += "\r\n";
 
+
     std::vector<asio::const_buffer> response_buffers;
     response_buffers.push_back(
         asio::buffer(m_response_status_line));
@@ -83,7 +82,11 @@ void HttpGet::sendResponse()  {
         const boost::system::error_code& ec,
         std::size_t bytes_transferred)
     {
-        this->m_service->on_response_sent(ec, bytes_transferred);
+        this->m_service->onResponseSent(ec, bytes_transferred);
         return;
     });
+}
+
+HttpGet::~HttpGet() {
+    m_resource_buf.reset();
 }

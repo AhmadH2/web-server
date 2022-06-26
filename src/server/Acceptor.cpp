@@ -50,6 +50,7 @@ void Acceptor::onAccept(const boost::system::error_code& ec,
 	std::shared_ptr<asio::ip::tcp::socket> sock) {
 	if (!ec) {
 		(new Service(sock))->start_handling();
+		// (new RequestReader(sock))->parseRequest();
 	}
 	else 
 	    throw ec;

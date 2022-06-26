@@ -13,16 +13,13 @@ class HttpMethod
 {
 public:
     HttpMethod(Service* service);
-    void virtual processRequest();
-    void virtual sendResponse();
+    void virtual processRequest() = 0;
+    void virtual sendResponse() = 0;
+    virtual ~HttpMethod() = 0;
 
 protected:
     Service* m_service;
     int m_response_status_code;
     std::string m_response_headers;
     std::string m_response_status_line;
-private:
-  
 };
-
-

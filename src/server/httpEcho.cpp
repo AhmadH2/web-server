@@ -30,7 +30,7 @@ void HttpEcho::sendResponse() {
         const boost::system::error_code& ec,
         std::size_t bytes_transferred)
     {
-        this->m_service->on_response_sent(ec, bytes_transferred);
+        this->m_service->onResponseSent(ec, bytes_transferred);
         return;
     });
 }

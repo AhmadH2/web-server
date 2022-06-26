@@ -12,7 +12,6 @@ void HttpHead::processRequest() {
         // Resource not found.
         m_response_status_code = 404;
         std::cout<<"file not exist\n";
-        m_service->send_response();
         return;
     }
 
@@ -24,7 +23,7 @@ void HttpHead::processRequest() {
         // Could not open file. 
         // Something bad has happened.
         m_response_status_code = 500;
-        m_service->send_response();
+        // m_service->send_response();
         return;
     }
 
@@ -49,7 +48,7 @@ void HttpHead::sendResponse() {
     m_response_status_line = std::string("HTTP/1.0 ") +
         status_line +
         "\r\n";
-
+    
     m_response_headers += "\r\n";
 
     std::vector<asio::const_buffer> response_buffers;
@@ -68,7 +67,7 @@ void HttpHead::sendResponse() {
         const boost::system::error_code& ec,
         std::size_t bytes_transferred)
     {
-        this->m_service->on_response_sent(ec, bytes_transferred);
+        this->m_service->onResponseSent(ec, bytes_transferred);
         return;
     });
 }

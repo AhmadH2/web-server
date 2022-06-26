@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <atomic>
 #include "Service.h"
+#include "RequestReader.h"
 
 using namespace boost;
 using boost::asio::ip::tcp;

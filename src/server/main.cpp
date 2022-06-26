@@ -13,9 +13,14 @@ int main(int argc, char* argv[])
   try
   {
 
+     if (argc != 3)
+    {
+      throw "Not suatable arguments list\n";
+    }
+
     Server srv;
     srv.start(port, thread_pool_size);
-    std::this_thread::sleep_for(std::chrono::seconds(40));
+
     srv.stop();
   }
   catch(const boost::system::error_code& ec) {
@@ -25,6 +30,8 @@ int main(int argc, char* argv[])
   {
     std::cerr << "Exception: " << e.what() << "\n";
   }
-
+  catch(...) {
+    std::cerr << "Unknown error\n";
+  }
   return 0;
 }

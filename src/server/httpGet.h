@@ -20,6 +20,7 @@ public:
     void processRequest();
     void sendResponse();
     void setRequestedRes(std::string res);
+    virtual ~HttpGet();
 
 private:
     std::size_t m_resource_size_bytes;
