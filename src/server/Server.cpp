@@ -1,13 +1,17 @@
 #include "Server.h"
+#include "WrapLogger.h"
 
 Server::Server() {
   m_work.reset(new asio::io_context::work(m_ioc));
+  WrapLogger::getLogger();
 }
 
 	// Start the server.
 void Server::start(unsigned short port,unsigned int thread_pool_size) {
   assert(thread_pool_size > 0);
+  // Logger::getInstance();
 
+  WrapLog(LogMode::TRACE, "Server start");
   // Create and strat Acceptor.
   acceptor.reset(new Acceptor(m_ioc, port));
   acceptor->start();
@@ -20,13 +24,12 @@ void Server::start(unsigned short port,unsigned int thread_pool_size) {
     m_thread_pool.push_back(std::move(th));
   }
 }
-
 	// Stop the server.
 void Server::stop() {
   acceptor->stop();
   m_ioc.stop();
 
   for (auto& th : m_thread_pool) {
-	th.join();
+	  th.join();
   }
 }

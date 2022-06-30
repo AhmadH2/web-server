@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
     unsigned short port = std::stoi(argv[2]);
     std::string method;
     std::string uri;
+    std::string body;
 
     HTTPClient client;
 		std::shared_ptr<HTTPRequest> req = client.create_request(host, port);
@@ -27,8 +28,12 @@ int main(int argc, char* argv[])
     std::cin>>method;
     std::getline(std::cin, uri);
 
+    std::cout << "Enter request body: ";
+    std::getline(std::cin, body);
+
     req->setMethod(method);
     req->setURI(uri);
+    req->setBody(body);
     req->execute();
 
     std::this_thread::sleep_for(std::chrono::seconds(15));

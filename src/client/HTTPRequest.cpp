@@ -17,6 +17,10 @@ void HTTPRequest::setMethod(std::string method) {
 void HTTPRequest::setURI(std::string uri) {
     m_uri = uri;
 }
+
+void HTTPRequest::setBody(std::string body) {
+    m_body = body;
+}
 std::string HTTPRequest::getURI() {
     return m_uri;
 }
@@ -69,11 +73,20 @@ asio::ip::tcp::resolver::iterator iterator) {
     std::string m_request_buf;
     // request status line
     m_request_buf = m_method + " " + m_uri + " HTTP/1.0\r\n";
+    
     // request header line
     m_request_buf += "Host: " + m_host + "\r\n";
-    // Empty line
+    m_request_buf += "Sender: Ahmad\r\n";
+    m_request_buf += "Type: JSON\r\n";
+
+    // empty line
     m_request_buf += "\r\n";
+    // request body
+    m_request_buf += m_body + "\r\n";
+    // m_request_buf += "{\"readme\":{\"name\":\"txt.txt\"}}\r\n";
+    
     // end request to the server
+    std::cout<<"Request is: \n" << m_request_buf;
     asio::async_write(*m_sock,
         asio::buffer(m_request_buf),
         [this](const boost::system::error_code& ec,

@@ -9,9 +9,9 @@
 class MethodFactory {
     
 public:
-    HttpMethod* getMethod(std::string method);
-    MethodFactory(Service* service);
+    static HttpMethod* getMethod(std::string method, Service* service);
+    // MethodFactory(Service* service);
 private:
-    Service* m_service;
-    std::map<std::string, HttpMethod*> m_methods_map;
+    static Service* m_service;
+    static std::map<std::string, HttpMethod*> m_methods_map;
 };

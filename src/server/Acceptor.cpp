@@ -6,7 +6,9 @@ Acceptor::Acceptor(asio::io_context& ioc, unsigned short port) :
   m_ioc(ioc),
   m_acceptor(m_ioc, tcp::endpoint(asio::ip::address_v4::any(), port)),
   m_isStopped(false)
-{}
+{
+	// WrapLog(LogMode::TRACE, "at the end of acceptor constructor\n");
+}
 
 // Start accepting connection requests.
 void Acceptor::start() {
@@ -14,18 +16,14 @@ void Acceptor::start() {
   InitAccept();
 }
 
-// Stop accepting connection requests.
-void Acceptor::stop() {
-  m_isStopped.store(true);
-}
-
 // Establish a connection with the client
 void Acceptor::InitAccept() {
-  std::cout<<"init accept\n";
+//   Logger::getInstance();
+  WrapLog(LogMode::TRACE, "init accept");
+//   std::cout<<"init accept\n";
   std::shared_ptr<asio::ip::tcp::socket>
 			sock(new asio::ip::tcp::socket(m_ioc));
 
-//   m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
   // A passive socket listens for incomming connection requests
   m_acceptor.async_accept(*sock,
 	[this, sock](
@@ -50,7 +48,6 @@ void Acceptor::onAccept(const boost::system::error_code& ec,
 	std::shared_ptr<asio::ip::tcp::socket> sock) {
 	if (!ec) {
 		(new Service(sock))->start_handling();
-		// (new RequestReader(sock))->parseRequest();
 	}
 	else 
 	    throw ec;
@@ -65,4 +62,9 @@ void Acceptor::onAccept(const boost::system::error_code& ec,
 	  // and free allocated resources.
 	  m_acceptor.close();
 	}
+}
+
+// Stop accepting connection requests.
+void Acceptor::stop() {
+  m_isStopped.store(true);
 }

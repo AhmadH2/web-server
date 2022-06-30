@@ -4,7 +4,7 @@
 # Variables to control Makefile operation
 
 CXX = g++
-CPPFLAGS = -Wall
+CPPFLAGS = -Wall -g
 CPPLINKS = -lboost_system -lboost_thread -lboost_filesystem
 CL_SOR = ./src/client/*.cpp
 CL_DES = ./dist/client

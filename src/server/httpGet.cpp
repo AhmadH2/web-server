@@ -6,10 +6,9 @@ HttpGet::HttpGet(Service* service): HttpMethod(service) {
 
 void HttpGet::processRequest() {
     // Read file.
-    std::cout<<"requested resource: "<<m_service->getRequestedResource();
+
     std::string resource_file_path = "." + m_service->getRequestedResource();
 
-    std::cout<<"Resource path"<<resource_file_path<<"\n";
     if (!boost::filesystem::exists(resource_file_path)) {
         // Resource not found.
         m_response_status_code = 404;
@@ -45,7 +44,6 @@ void HttpGet::processRequest() {
         ": " +
         std::to_string(m_resource_size_bytes) +
         "\r\n";
-    std::cout<<"response header: "<<"\n";
 }
 
 void HttpGet::sendResponse()  {

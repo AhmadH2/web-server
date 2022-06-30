@@ -5,9 +5,9 @@ RequestHandler::RequestHandler(RequestReader* requestReader, Service* service)
 : m_requestReader(requestReader), m_service(service) {}
 
 void RequestHandler::handleRequest() {
-    m_methodFactory = new MethodFactory(m_service);
 
-    m_http_method = m_methodFactory->getMethod(m_requestReader->getRequestMethod());
+    m_http_method = MethodFactory::getMethod(m_requestReader->getRequestMethod(),
+     m_service);
     if(m_http_method == nullptr) {
         m_response_status_code = 501;
         sendResponse();

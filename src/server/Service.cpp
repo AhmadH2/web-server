@@ -1,5 +1,4 @@
 #include "Service.h"
-// #include "httpHead.h"
 #include "RequestReader.h"
 #include "RequestHandler.h"
 
@@ -18,7 +17,6 @@ Service::Service(std::shared_ptr<boost::asio::ip::tcp::socket> sock) :
     m_sock(sock) {};
 
 void Service::start_handling() {
-    // read r
     m_requestReader = new RequestReader(this);
     m_requestReader->parseRequest(); // to find the request method & the request resource
 }
@@ -32,15 +30,15 @@ void Service::onRequestParsed() {
 void Service::onResponseSent(const boost::system::error_code& ec,
     std::size_t bytes_transferred)
 {
+    // Logger::getInstance();
+    WrapLog(LogMode::INFO, "Response sent succesfully");
     if (ec) {
-        std::cout << "Error occured! at on_response_sent Error code = "
-            << ec.value()
-            << ". Message: " << ec.message();
-            m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
+        WrapLog(LogMode::ERROR, "error accured at sending the respond");
+        m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
+        throw ec;
     }
 
     m_sock->shutdown(asio::ip::tcp::socket::shutdown_both);
-
     delete this;
 }
 

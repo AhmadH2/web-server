@@ -5,16 +5,18 @@
 #include <mutex>
 #include <chrono>
 #include <map>
+#include <memory>
 
-typedef enum LogMode { TRACE, DEBUG, INFO, WARN, ERROR } logMode;
+enum LogMode { TRACE, DEBUG, INFO, WARN, ERROR };
 
 
 
-#define WrapLog(mode, message)(Logger::getInstance()->log(mode, message, __FILE__, __LINE__))
+#define WrapLog(mode, message)(Logger::log(mode, message, __FILE__, __LINE__))
 
 class Logger {
+    friend class WrapLogger;
 public:
-    static Logger* getInstance();
+    
     // Singletons should not be cloneable.
     Logger(Logger& logger) = delete;
     // Singletons should not be assignable.
@@ -24,20 +26,18 @@ public:
     Logger& operator << (std::string message);
     
 
-    void log(LogMode, std::string message, std::string module, int line);
+    void static log(LogMode, std::string message, std::string module, int line);
+    
 
 protected:
+    static Logger* getInstance();
     Logger();
     ~Logger();
     
 private:
-    static std::ofstream m_stream;
+    static std::ofstream m_file;
     static std::mutex m_mutex;
     static Logger* m_pinstance;
-    static const std::string m_fileName;
-    std::map<LogMode, std::string> mode_map = {
-    {LogMode::INFO, "Info"},
-    {LogMode::DEBUG, "Debug"},
-    {LogMode::ERROR, "Error"}
-};
+    static std::string m_fileName;
+    static std::map<LogMode, std::string> mode_map;
 };
