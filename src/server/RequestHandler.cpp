@@ -1,36 +1,29 @@
 #include "RequestHandler.h"
 #include "RequestReader.h"
 
-RequestHandler::RequestHandler(RequestReader* requestReader, Service* service)
-: m_requestReader(requestReader), m_service(service) {}
+RequestHandler::RequestHandler(Service* service)
+: m_service(service) {}
 
 void RequestHandler::handleRequest() {
-
-    m_http_method = MethodFactory::getMethod(m_requestReader->getRequestMethod(),
-     m_service);
-    if(m_http_method == nullptr) {
+    try {
+        m_http_method = MethodFactory::getMethod(m_service);
+        m_http_method->processRequest();
+        m_http_method->sendResponse();
+    }
+    catch (ServerException& svrEx) {
+        WrapLog(LogMode::ERROR, svrEx.message());
         m_response_status_code = 501;
         sendResponse();
-        return;
     }
-    m_http_method->processRequest();
-    m_http_method->sendResponse();
-
     return;
 }
 
-
 void RequestHandler::sendResponse()  {
-
-    auto status_line =
-        m_service->http_status_table.at(m_response_status_code);
-
     m_response_status_line = std::string("HTTP/1.0 ") +
-        status_line +
+       m_service->getStatusPhrase(m_response_status_code) +
         "\r\n";
-
+ 
     m_response_headers += "\r\n";
-
 
     std::vector<asio::const_buffer> response_buffers;
     response_buffers.push_back(
@@ -41,7 +34,6 @@ void RequestHandler::sendResponse()  {
             asio::buffer(m_response_headers));
     }
 
-    // Initiate asynchronous write operation.
     asio::async_write(*m_service->getSocket(),
         response_buffers,
         [this](

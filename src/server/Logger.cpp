@@ -22,6 +22,7 @@ Logger* Logger::getInstance() {
       m_fileName = m_fileName.substr(0, m_fileName.length()-7);
       std::cout<<"file name: "<<m_fileName;
       m_pinstance = new Logger();
+
     }
     return m_pinstance;
 }

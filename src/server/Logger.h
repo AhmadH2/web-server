@@ -9,9 +9,8 @@
 
 enum LogMode { TRACE, DEBUG, INFO, WARN, ERROR };
 
-
-
 #define WrapLog(mode, message)(Logger::log(mode, message, __FILE__, __LINE__))
+
 
 class Logger {
     friend class WrapLogger;
@@ -24,6 +23,7 @@ public:
 
     // write to log file
     Logger& operator << (std::string message);
+    
     
 
     void static log(LogMode, std::string message, std::string module, int line);

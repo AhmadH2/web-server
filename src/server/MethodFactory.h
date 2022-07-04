@@ -5,13 +5,13 @@
 #include "httpEcho.h"
 #include <boost/algorithm/string.hpp>
 #include <string>
+#include "ServerException.h"
+#include "Service.h"
 
 class MethodFactory {
     
 public:
-    static HttpMethod* getMethod(std::string method, Service* service);
-    // MethodFactory(Service* service);
+    static HttpMethod* getMethod(Service* service);
 private:
-    static Service* m_service;
     static std::map<std::string, HttpMethod*> m_methods_map;
 };

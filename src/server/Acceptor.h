@@ -14,18 +14,12 @@ using boost::asio::ip::tcp;
 class Acceptor {
 public:
   Acceptor(asio::io_context& ioc, unsigned short port);
-
-	// Start accepting connection requests.
   void start();
-
-	// Stop accepting connection requests.
   void stop();
 
 private:
   void InitAccept();
-
-  void onAccept(const boost::system::error_code& ec,
-  	std::shared_ptr<asio::ip::tcp::socket> sock);
+  void onAccept(std::shared_ptr<asio::ip::tcp::socket> sock);
 
 private:
 	asio::io_context& m_ioc;

@@ -4,13 +4,13 @@
 #include "Service.h"
 
 class RequestReader;
+
 class RequestHandler {
 public:
-    RequestHandler(RequestReader* requestReader, Service* service);
+    RequestHandler(Service* service);
     void handleRequest();
     void sendResponse();
 private:
-    RequestReader* m_requestReader;
     HttpMethod* m_http_method;
 	MethodFactory* m_methodFactory;
     Service* m_service;

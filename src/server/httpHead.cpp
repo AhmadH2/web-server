@@ -4,48 +4,35 @@
 HttpHead::HttpHead(Service* service): HttpMethod(service) {}
 
 void HttpHead::processRequest() {
-
     std::string resource_file_path = "." + m_service->getRequestedResource();
 
     if (!boost::filesystem::exists(resource_file_path)) {
-        // Resource not found.
         m_response_status_code = 404;
-        std::cout<<"file not exist\n";
+        WrapLog(LogMode::ERROR, "File not found");
         return;
     }
 
-    std::ifstream resource_fstream(
-        resource_file_path,
-        std::ifstream::binary);
+    std::ifstream resource_fstream(resource_file_path, std::ifstream::binary);
 
     if (!resource_fstream.is_open()) {
-        // Could not open file. 
-        // Something bad has happened.
         m_response_status_code = 500;
-        // m_service->send_response();
         return;
     }
 
-    // Find out file size.
+    // Find out file size of the file.
     resource_fstream.seekg(0, std::ifstream::end);
-    m_resource_size_bytes =
-        static_cast<std::size_t>(
-        resource_fstream.tellg());
+    m_resource_size_bytes = static_cast<std::size_t>(resource_fstream.tellg());
+    resource_fstream.seekg(std::ifstream::beg);
     
-     m_response_headers += std::string("content-length") +
-        ": " +
-        std::to_string(m_resource_size_bytes) +
-        "\r\n";
+     m_response_headers += std::string("content-length") + ": " 
+     + std::to_string(m_resource_size_bytes) + "\r\n";
 
 }
 
 void HttpHead::sendResponse() {
-    auto status_line = m_service->http_status_table.at(m_response_status_code);
-        // http_status_table.at(m_response_status_code);
 
     m_response_status_line = std::string("HTTP/1.0 ") +
-        status_line +
-        "\r\n";
+        m_service->getStatusPhrase(m_response_status_code) + "\r\n";
     
     m_response_headers += "\r\n";
 
@@ -58,7 +45,6 @@ void HttpHead::sendResponse() {
             asio::buffer(m_response_headers));
     }
 
-    // Initiate asynchronous write operation.
     asio::async_write(*(m_service->getSocket()),
         response_buffers,
         [this](

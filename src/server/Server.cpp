@@ -6,10 +6,9 @@ Server::Server() {
   WrapLogger::getLogger();
 }
 
-	// Start the server.
 void Server::start(unsigned short port,unsigned int thread_pool_size) {
-  assert(thread_pool_size > 0);
-  // Logger::getInstance();
+  if(port < 0 || thread_pool_size < 0)
+    throw ServerException(ExceptionTypes::ARGUMENTS);
 
   WrapLog(LogMode::TRACE, "Server start");
   // Create and strat Acceptor.
@@ -24,7 +23,7 @@ void Server::start(unsigned short port,unsigned int thread_pool_size) {
     m_thread_pool.push_back(std::move(th));
   }
 }
-	// Stop the server.
+
 void Server::stop() {
   acceptor->stop();
   m_ioc.stop();

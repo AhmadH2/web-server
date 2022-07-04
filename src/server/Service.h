@@ -22,18 +22,20 @@ public:
 	void start_handling();
 	void onRequestParsed();
 	std::string getRequestedResource();
+	std::string getRequestMethod();
 	std::shared_ptr<boost::asio::ip::tcp::socket> getSocket();
 	void onResponseSent(const boost::system::error_code& ec,
 		std::size_t bytes_transferred);
-	static const std::map<unsigned int, std::string> http_status_table;
+	std::string getStatusPhrase(int statusCode);
 	~Service();
 
 private:
 	std::shared_ptr<boost::asio::ip::tcp::socket> m_sock;
 	std::string m_requested_resource;
 	std::string m_request_method;
-	RequestReader* m_requestReader;
-	RequestHandler* m_requestHandler;
+	std::unique_ptr<RequestReader> m_requestReader;
+	std::unique_ptr<RequestHandler> m_requestHandler;
+	static const std::map<unsigned int, std::string> m_http_status_table;
 };
 
 

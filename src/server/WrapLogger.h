@@ -4,6 +4,7 @@
 class WrapLogger {
 public:
     static std::shared_ptr<Logger*> getLogger();
+
     WrapLogger();
     ~WrapLogger();
 private:

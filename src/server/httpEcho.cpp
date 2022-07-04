@@ -6,11 +6,9 @@ HttpEcho::HttpEcho(Service* service): HttpMethod(service) {}
 void HttpEcho::processRequest() {}
 
 void HttpEcho::sendResponse() {
-    auto status_line = m_service->http_status_table.at(m_response_status_code);
 
     m_response_status_line = std::string("HTTP/1.0 ") +
-        status_line +
-        "\r\n";
+        m_service->getStatusPhrase(m_response_status_code) + "\r\n";
 
     m_response_headers += "\r\n";
 
@@ -23,7 +21,6 @@ void HttpEcho::sendResponse() {
             asio::buffer(m_response_headers));
     }
 
-    // Initiate asynchronous write operation.
     asio::async_write(*(m_service->getSocket()),
         response_buffers,
         [this](

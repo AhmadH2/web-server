@@ -1,39 +1,43 @@
 #include <iostream>
 #include "Server.h"
 #include <thread>
-#include "Exception.h"
+#include "ServerException.h"
 using namespace boost;
 using boost::asio::ip::tcp;
 
 
 int main(int argc, char* argv[])
 {
+  Server *srv;
   try
   {
 
     if (argc != 2)
     {
-      throw myException(ExcepTypes::ARGUMENTS);
+      throw ServerException(ExceptionTypes::ARGUMENTS);
     }
     unsigned short port = std::stoi(argv[1]);
     unsigned short thread_pool_size = 5;
 
-    Server srv;
-    srv.start(port, thread_pool_size);
-    srv.stop();
+    srv = new Server();
+    srv->start(port, thread_pool_size);
+    srv->stop();
   }
-  catch(myException& myExcep) {
-    std::cerr<<myExcep.message();
+  catch(ServerException& svrEx) {
+    WrapLog(LogMode::ERROR, svrEx.message());
   }
-  catch(const boost::system::error_code& ec) {
-    std::cerr << "error code Exception: " << ec.message() << "\n";
+  catch(const boost::system::error_code& error_code) {
+    WrapLog(LogMode::ERROR, error_code.message());
   }
   catch (std::exception& e)
   {
-    std::cerr << "Exception: " << e.what() << "\n";
+    WrapLog(LogMode::ERROR, e.what());
   }
   catch(...) {
-    std::cerr << "Unknown error\n";
+    WrapLog(LogMode::ERROR, "Unknown error");
   }
+  
+  
+  delete srv;
   return 0;
 }
